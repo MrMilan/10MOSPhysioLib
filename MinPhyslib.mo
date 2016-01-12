@@ -258,7 +258,7 @@ package MinPhyslib
     Physiolibrary.Types.Constants.VolumeFlowRateConst bloodFlow(k = 9.1666666666667e-05) annotation(Placement(transformation(extent = {{-114, 34}, {-70, 54}})));
     Physiolibrary.Chemical.Components.SolutePump lungsOutflow(useSoluteFlowInput = true) annotation(Placement(transformation(extent = {{-10, 10}, {10, -10}}, rotation = 90, origin = {6, 62})));
     Physiolibrary.Chemical.Sources.UnlimitedSolutionStorage alveolSpace(concentration = 1, useConcentrationInput = false) annotation(Placement(transformation(extent = {{-78, 68}, {-50, 96}})));
-    Physiolibrary.Types.Constants.MolarFlowRateConst LungsFlowRateConst(k = 0.0007) annotation(Placement(transformation(extent = {{-7, -7}, {7, 7}}, rotation = 180, origin = {85, 93})));
+    Physiolibrary.Types.Constants.MolarFlowRateConst LungsFlowRateConst(k = 0.0007) annotation(Placement(transformation(extent = {{-7, -7}, {7, 7}}, rotation = 180, origin={85,95})));
     Physiolibrary.Types.Constants.VolumeConst VenVolume(k = 0.0035) annotation(Placement(transformation(extent = {{-106, -14}, {-88, 0}})));
     Physiolibrary.Types.Constants.VolumeConst ArtVolume(k = 0.0015) annotation(Placement(transformation(extent = {{26, -16}, {44, -2}})));
     Physiolibrary.Chemical.Components.Stream lungsInstream(useSolutionFlowInput = true) annotation(Placement(transformation(extent = {{-10, -10}, {10, 10}}, rotation = 0, origin = {-44, 26})));
@@ -266,10 +266,11 @@ package MinPhyslib
     Physiolibrary.Blocks.Factors.Normalization effect1 annotation(Placement(visible = true, transformation(origin = {38, 82}, extent = {{10, -10}, {-10, 10}}, rotation = 0)));
     Physiolibrary.Types.Constants.ConcentrationConst normalConcentration(k(displayUnit = "mmol/l") = 8.2) annotation(Placement(transformation(extent = {{88, 48}, {80, 56}})));
     Physiolibrary.Chemical.Sensors.ConcentrationMeasure concentrationMeasure annotation(Placement(transformation(extent = {{-10, -10}, {10, 10}}, rotation = 180, origin = {86, 16})));
-    Modelica.Blocks.Sources.Step step(
-      height=0.0005,
-      offset=18,
-      startTime=1)                                                           annotation(Placement(transformation(extent = {{56, -76}, {36, -56}})));
+    Physiolibrary.Types.Constants.MolarFlowRateConst tissuesFlowRateConst(k=0.0003)
+      annotation (Placement(transformation(
+          extent={{-7,-7},{7,7}},
+          rotation=180,
+          origin={47,-59})));
   equation
     connect(arteries.q_out, tissuesStream.q_in) annotation(Line(points = {{64, -14}, {64, -36}, {40, -36}}, color = {200, 0, 0}, thickness = 1, smooth = Smooth.None));
     connect(veins.q_out, tissuesStream.q_out) annotation(Line(points = {{-68, -12}, {-68, -36}, {20, -36}}, color = {200, 0, 0}, thickness = 1, smooth = Smooth.None));
@@ -286,12 +287,15 @@ package MinPhyslib
     connect(tissuesFlow.q_in, tissues.q_out) annotation(Line(points = {{8, -66}, {8, -66}, {8, -84}, {-20, -84}, {-20, -80}}, color = {107, 45, 134}, thickness = 1));
     connect(tissuesFlow.q_out, tissuesStream.q_out) annotation(Line(points = {{8, -46}, {8, -36}, {20, -36}}, color = {107, 45, 134}, thickness = 1));
     connect(effect1.y, lungsOutflow.soluteFlow) annotation(Line(points = {{38, 78}, {38, 78}, {38, 68}, {10, 68}, {10, 66}}, color = {0, 0, 127}));
-    connect(effect1.yBase, LungsFlowRateConst.y) annotation(Line(points = {{38, 84}, {40, 84}, {40, 94}, {40, 93}, {76.25, 93}}, color = {0, 0, 127}));
+    connect(effect1.yBase, LungsFlowRateConst.y) annotation(Line(points={{38,84},
+            {40,84},{40,94},{40,95},{76.25,95}},                                                                                 color = {0, 0, 127}));
     connect(effect1.u, division1.y) annotation(Line(points = {{46, 82}, {46, 82}, {46, 74}, {46, 60}, {51.4, 60}}, color = {0, 0, 127}));
     connect(normalConcentration.y, division1.u2) annotation(Line(points = {{79, 52}, {65.2, 52}, {65.2, 56.4}}, color = {0, 0, 127}));
     connect(concentrationMeasure.q_in, arteries.q_out) annotation(Line(points = {{86, 16}, {86, 16}, {86, -6}, {86, -12}, {64, -12}, {64, -14}}, color = {107, 45, 134}, thickness = 1));
     connect(concentrationMeasure.concentration, division1.u1) annotation(Line(points = {{86, 24}, {88, 24}, {88, 38}, {96, 38}, {96, 63.6}, {65.2, 63.6}}, color = {0, 0, 127}));
-    connect(step.y, tissuesFlow.soluteFlow) annotation(Line(points = {{35, -66}, {32, -66}, {32, -64}, {12, -64}, {12, -52}}, color = {0, 0, 127}));
+    connect(tissuesFlow.soluteFlow, tissuesFlowRateConst.y) annotation (Line(
+          points={{12,-52},{20,-52},{20,-60},{38.25,-60},{38.25,-59}}, color={0,
+            0,127}));
     annotation(Diagram(coordinateSystem(preserveAspectRatio = false, extent = {{-100, -100}, {100, 100}})));
   end CO2Reg;
 
@@ -372,7 +376,6 @@ package MinPhyslib
     Physiolibrary.Hydraulic.Components.Pump leftHeart(useSolutionFlowInput = true) annotation(Placement(visible = true, transformation(extent = {{50, 6}, {70, 26}}, rotation = 0)));
     Physiolibrary.Hydraulic.Components.Pump rightHeart(useSolutionFlowInput = true) annotation(Placement(visible = true, transformation(extent = {{-46, 2}, {-26, 22}}, rotation = 0)));
     Physiolibrary.Blocks.Factors.Normalization effect1 annotation(Placement(visible = true, transformation(origin = {-36, 32}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Sources.Constant const(k = 1) annotation(Placement(visible = true, transformation(origin = {29, 49}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
     Modelica.Blocks.Math.Division division2 annotation(Placement(visible = true, transformation(origin = {32, 34}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
     Physiolibrary.Blocks.Factors.Normalization effect3 annotation(Placement(visible = true, transformation(origin = {60, 34}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Physiolibrary.Blocks.Factors.Normalization effect2 annotation(Placement(visible = true, transformation(origin = {60, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -380,13 +383,12 @@ package MinPhyslib
     Modelica.Blocks.Math.Division division1 annotation(Placement(visible = true, transformation(origin = {-64, 36}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
     Physiolibrary.Hydraulic.Sensors.PressureMeasure pressureMeasure2 annotation(Placement(visible = true, transformation(origin = {-1, 44}, extent = {{-5, -6}, {5, 6}}, rotation = 0)));
     Physiolibrary.Types.BusConnector busConnector
-      annotation (Placement(transformation(extent={{-16,-38},{24,2}})));
+      annotation (Placement(transformation(extent={{-20,-38},{20,2}})));
   equation
     connect(normalSystemicVeinsPressure.y, division1.u2) annotation(Line(points = {{-67.25, -4}, {-78, -4}, {-78, 34}, {-70, 34}, {-70, 33.6}, {-68.8, 33.6}}, color = {0, 0, 127}));
     connect(rightHeart.solutionFlow, effect1.y) annotation(Line(points = {{-36, 19}, {-36, 19}, {-36, 28}}, color = {0, 0, 127}));
     connect(volumeFlowRate1.y, effect1.yBase) annotation(Line(points = {{-48.5, 57}, {-36, 57}, {-36, 48}, {-36, 34}}, color = {0, 0, 127}));
     connect(pulmPressure.q_in, veins.q_in) annotation(Line(points = {{-89, 38.4}, {-90, 38.4}, {-90, -50}}));
-    connect(const.y, effect2.u) annotation(Line(points = {{34.5, 49}, {52, 49}, {52, 50}}, color = {0, 0, 127}));
     connect(rightHeart.q_out, pulmonaryArteries.q_in) annotation(Line(points = {{-26, 12}, {-26, 68}, {-68, 68}, {-68, 88}, {-48, 88}}, thickness = 1));
     connect(veins.q_in, rightHeart.q_in) annotation(Line(points = {{-90, -50}, {-90, 12}, {-46, 12}}, thickness = 1));
     connect(leftHeart.q_out, arteries.q_in) annotation(Line(points = {{70, 16}, {70, -16}, {54, -16}, {54, -50}}, thickness = 1));
@@ -405,18 +407,25 @@ package MinPhyslib
     connect(pressureMeasure2.pressure, division2.u1) annotation(Line(points = {{2, 41.6}, {24, 41.6}, {24, 34}, {24, 36.4}, {27.2, 36.4}}, color = {0, 0, 127}));
     connect(normalPulmonarzVeinsPressure.y, division2.u2) annotation(Line(points = {{14.5, 28}, {16, 28}, {16, 26}, {20, 26}, {20, 31.6}, {27.2, 31.6}}, color = {0, 0, 127}));
     connect(busConnector.veinsVolume, veins.volume) annotation (Line(
-        points={{4,-18},{-4,-18},{-4,-74},{-84,-74},{-84,-60}},
+        points={{0,-18},{-4,-18},{-4,-74},{-84,-74},{-84,-60}},
         color={0,0,255},
         thickness=0.5), Text(
         string="%first",
         index=-1,
         extent={{-6,3},{-6,3}}));
     connect(arteries.volume, busConnector.arterialVolume) annotation (Line(
-          points={{60,-60},{54,-60},{54,-78},{4,-78},{4,-18}}, color={0,0,127}),
+          points={{60,-60},{54,-60},{54,-78},{0,-78},{0,-18}}, color={0,0,127}),
         Text(
         string="%second",
         index=1,
         extent={{6,3},{6,3}}));
+    connect(busConnector.bloodFlowFactor, effect2.u) annotation (Line(
+        points={{0,-18},{36,-18},{36,50},{52,50}},
+        color={0,0,255},
+        thickness=0.5), Text(
+        string="%first",
+        index=-1,
+        extent={{-6,3},{-6,3}}));
     annotation(Diagram(coordinateSystem(preserveAspectRatio = false, extent = {{-100, -100}, {100, 100}})));
   end CVSRegBUS;
 
@@ -482,7 +491,7 @@ package MinPhyslib
         color={0,0,255},
         thickness=0.5));
     connect(cO2RegBUS.busConnector, cVSRegBUS.busConnector) annotation (Line(
-        points={{-24.8,2.6},{16.4,2.6},{16.4,58.2}},
+        points={{-24.8,2.6},{16,2.6},{16,58.2}},
         color={0,0,255},
         thickness=0.5));
     annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
